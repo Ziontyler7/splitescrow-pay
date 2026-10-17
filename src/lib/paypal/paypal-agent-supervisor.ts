@@ -45,6 +45,38 @@ export interface PayPalSupervisorPipelineInput {
   timeoutMs?: number;
 }
 
+export interface PayPalAgentToolkitMcpSpec {
+  sdkPackage: '@paypal/agent-toolkit';
+  mcpProtocolVersion: '2025-03-26';
+  headers: {
+    'PayPal-Request-Id': string;
+    'PayPal-Partner-Attribution-Id': 'SPLITESCROW_MP_AI_2026';
+    'Content-Type': 'application/json';
+  };
+  mcpToolCalls: readonly [
+    {
+      toolName: 'create_order';
+      endpoint: 'POST /v2/checkout/orders';
+      idempotencyKey: string;
+      intent: 'CAPTURE' | 'AUTHORIZE';
+      grossAmountUsd: string;
+    },
+    {
+      toolName: 'get_order';
+      endpoint: string;
+      orderId: string;
+      verificationStatus: string;
+    },
+    {
+      toolName: 'create_payout_batch';
+      endpoint: 'POST /v1/payments/payouts';
+      senderBatchId: string;
+      recipientCount: number;
+      totalDisbursedUsd: string;
+    },
+  ];
+}
+
 export interface PayPalSupervisorPipelineResult {
   contractId: EscrowContractId;
   decisionMode: PayPalSupervisorDecisionMode;
@@ -54,6 +86,7 @@ export interface PayPalSupervisorPipelineResult {
   ledger: EscrowLedgerBalance;
   settlement: EscrowSettlementDecision;
   attestation: EscrowSettlementAttestation;
+  paypalMcpToolkitSpec: PayPalAgentToolkitMcpSpec;
   stageTraces: PayPalStageTrace[];
 }
 
@@ -127,6 +160,45 @@ export function verifyEscrowAttestationIntegrity(
   );
 }
 
+export function buildPayPalAgentToolkitMcpSpec(
+  ledger: EscrowLedgerBalance,
+  settlement: EscrowSettlementDecision,
+  attestation: EscrowSettlementAttestation
+): PayPalAgentToolkitMcpSpec {
+  const idempotencyKey = `ppal-idemp-${attestation.signature.toLowerCase()}`;
+  return {
+    sdkPackage: '@paypal/agent-toolkit',
+    mcpProtocolVersion: '2025-03-26',
+    headers: {
+      'PayPal-Request-Id': idempotencyKey,
+      'PayPal-Partner-Attribution-Id': 'SPLITESCROW_MP_AI_2026',
+      'Content-Type': 'application/json',
+    },
+    mcpToolCalls: [
+      {
+        toolName: 'create_order',
+        endpoint: 'POST /v2/checkout/orders',
+        idempotencyKey,
+        intent: settlement.paypalOrderIntent,
+        grossAmountUsd: formatUsdFromCents(ledger.grossOrderCents),
+      },
+      {
+        toolName: 'get_order',
+        endpoint: `GET /v2/checkout/orders/${ledger.paypalOrderId}`,
+        orderId: ledger.paypalOrderId,
+        verificationStatus: settlement.settlementStatus,
+      },
+      {
+        toolName: 'create_payout_batch',
+        endpoint: 'POST /v1/payments/payouts',
+        senderBatchId: `batch-${attestation.signature.toLowerCase()}`,
+        recipientCount: settlement.payeeDisbursements.length,
+        totalDisbursedUsd: formatUsdFromCents(settlement.totalPayeeDisbursedCents),
+      },
+    ],
+  };
+}
+
 export async function runPayPalAgentSupervisorPipeline(
   input: PayPalSupervisorPipelineInput
 ): Promise<PayPalSupervisorPipelineResult> {
@@ -159,6 +231,7 @@ export async function runPayPalAgentSupervisorPipeline(
   const ledger = computeEscrowLedgerBalance(contract, input.policy.fundedRatioBps);
   const settlement = solveMilestoneAndDisputeSettlement(contract, ledger, input.policy);
   const attestation = createEscrowSettlementAttestation(ledger, settlement, input.policy);
+  const paypalMcpToolkitSpec = buildPayPalAgentToolkitMcpSpec(ledger, settlement, attestation);
 
   const traceStatus: PayPalStageTrace['status'] = circuitBreakerTripped
     ? 'FALLBACK_RECOVERED'
@@ -204,6 +277,7 @@ export async function runPayPalAgentSupervisorPipeline(
     ledger,
     settlement,
     attestation,
+    paypalMcpToolkitSpec,
     stageTraces,
   };
 }

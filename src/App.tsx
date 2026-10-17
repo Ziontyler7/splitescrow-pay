@@ -20,11 +20,12 @@ import {
   exportPayPalOrdersV2Json,
 } from './lib/export/escrow-settlement-exporter.ts';
 import {
+  buildPayPalAgentToolkitMcpSpec,
   createEscrowSettlementAttestation,
   verifyEscrowAttestationIntegrity,
 } from './lib/paypal/paypal-agent-supervisor.ts';
 
-type ExportTab = 'JSON_ORDERS_V2' | 'CSV_LEDGER' | 'MARKDOWN_CERT';
+type ExportTab = 'JSON_ORDERS_V2' | 'CSV_LEDGER' | 'MARKDOWN_CERT' | 'PAYPAL_MCP_TOOLKIT';
 
 const DISPUTE_MODE_OPTIONS: readonly {
   value: DisputeArbitrationMode;
@@ -128,6 +129,13 @@ export function App() {
   );
 
   const exportedPreview = useMemo(() => {
+    if (activeExportTab === 'PAYPAL_MCP_TOOLKIT') {
+      return JSON.stringify(
+        buildPayPalAgentToolkitMcpSpec(ledger, settlement, attestation),
+        null,
+        2
+      );
+    }
     if (activeExportTab === 'JSON_ORDERS_V2') {
       return exportPayPalOrdersV2Json(ledger, settlement, attestation.signature);
     }
@@ -135,7 +143,7 @@ export function App() {
       return exportEscrowLedgerCsv(ledger, settlement, attestation.signature);
     }
     return exportEscrowContractMarkdown(ledger, settlement, attestation.signature);
-  }, [activeExportTab, ledger, settlement, attestation.signature]);
+  }, [activeExportTab, ledger, settlement, attestation]);
 
   const handleDownloadExport = () => {
     const ext =
@@ -677,6 +685,17 @@ export function App() {
                   onClick={() => setActiveExportTab('MARKDOWN_CERT')}
                 >
                   Markdown Audit Certificate
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={activeExportTab === 'PAYPAL_MCP_TOOLKIT'}
+                  className={`export-tab ${
+                    activeExportTab === 'PAYPAL_MCP_TOOLKIT' ? 'export-tab-active' : ''
+                  }`}
+                  onClick={() => setActiveExportTab('PAYPAL_MCP_TOOLKIT')}
+                >
+                  @paypal/agent-toolkit MCP Spec
                 </button>
               </div>
               <button

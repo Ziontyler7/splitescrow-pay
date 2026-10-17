@@ -272,6 +272,11 @@ test('Gate 4: 4-Stage PayPal AI Agent Supervisor, 4.5s Circuit Breaker & FNV-1a-
   assert.equal(liveRun.stageTraces.length, 4);
   assert.equal(liveRun.scrubbedIntake.redactionCount, 2);
   assert.ok(liveRun.attestation.signature.startsWith('SPE-PPAL-'));
+  assert.equal(liveRun.paypalMcpToolkitSpec.sdkPackage, '@paypal/agent-toolkit');
+  assert.equal(liveRun.paypalMcpToolkitSpec.mcpToolCalls.length, 3);
+  assert.ok(
+    liveRun.paypalMcpToolkitSpec.headers['PayPal-Request-Id'].startsWith('ppal-idemp-')
+  );
 
   const fallbackRun = await runPayPalAgentSupervisorPipeline({
     contractId: 'SPE-CROSSBORDER-DESIGN-SPRINT',
