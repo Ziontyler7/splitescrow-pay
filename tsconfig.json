@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "files": [
+    "src/main.tsx",
+    "src/App.tsx",
+    "src/lib/ledger/paypal-escrow-ledger.ts",
+    "src/lib/solver/milestone-dispute-solver.ts",
+    "src/lib/export/escrow-settlement-exporter.ts",
+    "src/lib/paypal/paypal-agent-supervisor.ts",
+    "src/test/splitescrow-verification.test.ts"
+  ]
+}
