@@ -44,3 +44,6 @@
 - **`src/lib/solver/milestone-dispute-solver.ts`**: Implements `solveMilestoneAndDisputeSettlement` and `verifyEscrowConservationLaw` enforcing zero cent drift and strict hold invariants.
 - **`src/lib/export/escrow-settlement-exporter.ts`**: Generates PayPal Orders v2 + Payouts JSON Schema Draft 2020-12 payloads, Double-Entry Settlement CSV ledgers, and Markdown Escrow Audit Certificates.
 - **`src/lib/paypal/paypal-agent-supervisor.ts`**: Orchestrates the 4-stage pipeline with a `4500ms` `AbortController` circuit breaker and FNV-1a-32 cryptographic attestation (`createEscrowSettlementAttestation`, `verifyEscrowAttestationIntegrity`).
+
+## 2. `@paypal/agent-toolkit` MCP Server Contract (`paypal-agent-supervisor.ts`)
+- `buildPayPalAgentToolkitMcpSpec()` constructs the MCP server configuration (`npx -y @paypal/agent-toolkit --tools=orders.create,orders.get,payouts.create`), `PayPal-Request-Id` idempotency header, `PayPal-Partner-Attribution-Id`, and tool payloads rendered in the `PAYPAL_MCP_TOOLKIT` studio tab.

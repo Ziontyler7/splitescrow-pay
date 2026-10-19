@@ -35,3 +35,7 @@ npm run check
 # Start local studio on http://127.0.0.1:5188
 npm run dev
 ```
+
+## 🤖 `@paypal/agent-toolkit` MCP Server & `PayPal-Request-Id` Idempotency Inspector (`PAYPAL_MCP_TOOLKIT`)
+
+- **PayPal Agent Toolkit MCP Specification (`buildPayPalAgentToolkitMcpSpec`)**: Generates ready-to-execute `@paypal/agent-toolkit` Model Context Protocol (MCP) tool calls (`create_order` ➔ `POST /v2/checkout/orders`, `get_order` ➔ `GET /v2/checkout/orders/{id}`, and `create_payout_batch` ➔ `POST /v1/payments/payouts`) with deterministic **`PayPal-Request-Id`** idempotency keys and **`PayPal-Partner-Attribution-Id`** (`BN-Code`) headers.

@@ -9,7 +9,10 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 127.0.0.1 --port 5188 --strictPort",
     "test": "node --experimental-strip-types src/test/splitescrow-verification.test.ts",
-    "check": "tsc --noEmit && npm test"
+    "check": "tsc --noEmit && npm test",
+    "deploy:firebase": "npm run check && npm run build && npx firebase-tools deploy --only hosting",
+    "deploy:preview": "npm run check && npm run build && npx firebase-tools hosting:channel:deploy paypal-judges-2026 --expires 30d",
+    "disable:firebase": "npx firebase-tools hosting:disable --site splitescrow-pay -f"
   },
   "dependencies": {
     "react": "^18.3.1",

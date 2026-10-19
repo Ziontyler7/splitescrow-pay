@@ -359,6 +359,8 @@ test('Gate 6: Clean-Room Audit (Zero Internal Terminology Leaks & Zero External 
     'devpost/PRD.md',
     'devpost/ARCHITECTURE.md',
     'devpost/SUBMISSION_CHECKLIST.md',
+    'devpost/DEVPOST_SUBMISSION.md', 'devpost/PRD.md', 'devpost/ARCHITECTURE.md', 'devpost/SUBMISSION_CHECKLIST.md', 'firebase.json',
+    'LICENSE',
     'src/main.tsx',
     'src/App.tsx',
     'src/styles.css',
