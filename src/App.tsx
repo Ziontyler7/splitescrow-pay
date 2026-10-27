@@ -420,9 +420,26 @@ export function App() {
               </div>
             </fieldset>
 
-            <button type="submit" className="primary-submit-btn">
-              Seal Escrow Settlement (FNV-1a-32) · {formatUsdFromCents(settlement.fundedPoolCents)}
-            </button>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '8px' }}>
+              <button type="submit" className="primary-submit-btn" style={{ flex: 1 }}>
+                🛡️ Human Escrow Officer: Seal Escrow Settlement (FNV-1a-32) · {formatUsdFromCents(settlement.fundedPoolCents)}
+              </button>
+              <button
+                type="button"
+                className="secondary-btn"
+                onClick={() => {
+                  setDisputeMode('ARBITRATION_SPLIT');
+                  setDisputePayeeAwardPct(63);
+                  setFundedRatioPct(97);
+                  setRawEscrowNotes(
+                    'Blind-test dispute: Bearer A21AAJ_JUDGE_TEST_991 · Card 4111 2222 3333 4444 CVV=919 · Wire ABA=021000021 · Contact judge@paypal.com or (408) 555-0133.'
+                  );
+                  setSealedSignature(null);
+                }}
+              >
+                🧪 Judge Blind-Test: Odd-Penny Dispute + PCI Scrub
+              </button>
+            </div>
 
             {sealedSignature && (
               <div className="seal-confirmation" role="status" aria-live="polite">
